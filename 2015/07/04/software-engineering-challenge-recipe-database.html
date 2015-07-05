@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Software Engineering Challenge: Recipe Database</title>
+		<meta name="description" content="There exists the term “Software Engineer” and “Computer Scientist”. There existsalmost no consensus on what these terms mean and what the distinction between...">
+		<link rel="stylesheet" href="/css/main.css">
+		<link rel="canonical" href="http://nebufp.github.io/2015/07/04/software-engineering-challenge-recipe-database.html">
+		<link rel="alternate" type="application/rss+xml" title="Nebu's FP Notes" href="http://nebufp.github.io/feed.xml" />
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	</head>
+	<body>
+		<header id="site-header">
+			<a class="site-title" href="/">Nebu's FP Notes</a>
+			<nav class="site-nav">
+				<div class="trigger">
+					
+						
+							<a class="page-link" href="/about/">About</a>
+						
+					
+						
+					
+						
+					
+						
+					
+				</div>
+			</nav>
+		</header>
+		<div class="main-content">
+			<div class="post">
+	<header>
+		<h1>Software Engineering Challenge: Recipe Database</h1>
+	</header>
+	
+		<div class="tags">Tags: programming.</div>
+	
+	<article>
+		<p>There exists the term “Software Engineer” and “Computer Scientist”. There exists
+almost no consensus on what these terms mean and what the distinction between
+the two of them is. I’m going to offer my personal definition. I’m not saying
+it’s <em>the</em> one true definition, and I don’t even think that it’s the most widely
+used definition. I have no idea which definition is most widely used, but I am
+very confident that that most widely used definition is also a minority; i.e.
+for all definitions D, the size of the population that uses D is (much) less
+than 50% of the population of all people who use those terms.</p>
+
+<p>So here’s my definition: A computer scientist is more likely to be interested in
+the theory, whereas a computer engineer is more likely to be interested in the
+practical implementations. A computer scientist would be able to come up with a
+proof showing that a particular algorithm is the optimal way to solve a given
+problem, when run on an idealized abstraction of computation. A computer
+engineer would then be able to take that algorithm and implement it on actual
+(not idealized) computers with finite memories, and may need to deviate from
+the supposedly “proven optimal” design in order to increase performance due to
+issues like cache misses or finite word sizes (dealing with integers smaller
+than 64 bits is trivial. As soon as you cross that threshold, you have a whole
+other story).</p>
+
+<p>For what it’s worth, I self-identify more as a computer scientist than as a
+software engineer (though my official job title these days is “software
+development engineer”).</p>
+
+<p>With that in mind, here’s a little challenge for you (regardless of which one
+you self identify as). I was prompted to write this challenge from a
+StackOverflow post (which I won’t link to until the end of the post ‘cause I
+don’t want you to be tempted to cheat and look at the answer), but I’ve seen
+variations of this problem many times over the years.</p>
+
+<p>Imagine we’re a new start up and we want to build a recipe database, where the
+user can enter in what ingredients they have available to them, and we return
+the set of all recipes that can be followed using only those ingredients.</p>
+
+<p>For the purposes of this challenge, a <code>Recipe</code> is merely a <code>Set&lt;Ingredient&gt;</code>
+i.e. we don’t care how long it takes to prepare, what the steps are, and so
+on; all we care about is whether or not we have the ingredients necessary to
+follow the recipe. The database is some sort of collection of <code>Recipe</code>s (it
+might be a list, a hashset, a map, or whatever; that’s part of what you need to
+figure out for your design). And when the user issues a query to you, they will
+do so by providing a <code>Set&lt;ingredients&gt;</code> (It’s a set because ordering doesn’t
+matter).</p>
+
+<p>Also note that for simplicity, we don’t care how much of an ingredient is
+necessary. For example, if a recipe needs milk, and the user says they have
+milk, then we should include that recipe (assuming the user also has all the
+other ingredients necessary for that recipe). We don’t attempt to have the user
+specify how much milk they have and compare that against how much milk the
+recipe say it needs.</p>
+
+<p>Finally, to give you an idea of any scaling issues we may someday face,  we want
+loads of about 100’000 distinct possible ingredients and about 1’000’000
+distinct recipes (although of course, right now we only have about 1000 or so
+recipes, we’re adding more every day). We expect the typical recipe to require
+somewhere between 5  and 50 ingredients, and we expect the user to on average
+submit queries with about 100 ingredients (don’t worry, they don’t have to type
+them all in; we’re going to make an app that takes care of keeping track of what
+the user has available, the user just has to press a single button and the app
+populates the query). And ideally, we’re hoping to one day get to 1’000’000
+queries issued per day.</p>
+
+<p>Let’s look at a concrete toy example. In this example, there exists only 3
+ingredients: bread, egg and milk. Here are all the recipes that exist in the DB:</p>
+
+<ul>
+  <li>Glass of milk. Required ingredients: milk.</li>
+  <li>Fried egg. Required ingredients: egg.</li>
+  <li>Omelet. Required ingredients: egg, milk.</li>
+  <li>Toast. Required ingredients: bread.</li>
+  <li>French Toast. Required ingredients: bread, egg, milk.</li>
+</ul>
+
+<p>And here’s the test cases:</p>
+
+<ul>
+  <li>If a user submits the query <code>{milk}</code>, we should return <code>{Glass of milk}</code>.</li>
+  <li>If the user submitthe query <code>{egg, milk}</code>, we should return
+<code>{Glass of milk, Fried Egg, Omelet}</code>.</li>
+  <li>If a user submits the query <code>{bread, milk}</code>, we should return
+<code>{Glass of milk, Toast}</code>.</li>
+</ul>
+
+<p>Go ahead and try to come up with a design now, and then come back to this blog
+post once you feel you’ve got a clean, simple design that you could give to a
+development team to implement.</p>
+
+<figure>
+	<img src="/vendor/wikipe-tan/spoiler-alert.png" alt="Spoiler Alert! Care before scrolling further!" />
+	<figcaption>
+		<cite>
+			Original Wikipe-tan image by <a href="https://en.wikipedia.org/wiki/User:Kasuga">Kasuga</a>;
+			<a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>
+		</cite>
+	</figcaption>
+</figure>
+
+<p>Done? Great.</p>
+
+<p>If you’re like most professional software developers, you probably started
+thinking about data structures and algorithms, and possibly about their running
+time and memory requirements.</p>
+
+<p>Perhaps you tried to construct some sort of 20-questions style decision tree,
+along with an algorithm to rebalance the trees as new recipes/ingredients are
+added, and some sort of heuristic for determining the optimal order in which
+to ask those questions to reduce the space of possible recipe-sets as quickly
+as possible. E.g. Does the query include bread? If not we can eliminate Toast
+and French Toast, but now we need to ask a question to determine whether or not
+to keep Glass of milk, Fried egg and Omelet.</p>
+
+<p>Or perhaps you tried to set up a key-value-Map-like datastructure where the keys
+are internally organized into a <a href="https://en.wikipedia.org/wiki/Hasse_diagram">Hasse Diagram</a>
+so that when a user submitted their list of available ingredients, you’d fetch
+the recipes that exactly match the user’s available ingredients, and then travel
+down the “subset edges” in the Hasse diagram to also include recipes that don’t
+necessarily require every single ingredient the user owns. E.g. The user has egg
+and milk? Excellent, then they can definitely make Omelet. But now let’s look up
+all possible subsets of their available ingredients to see if there are other
+things they might be able to milk.</p>
+
+<p>Maybe you thought of using <a href="http://akka.io/">a distributed network of actors</a>,
+each actor perhaps responsible for some cluster of ingredients that commonly
+appear together, and when a request comes in, it gets passed around with a
+result list appended to.</p>
+
+<p>Or maybe you went with an <a href="http://guide.couchdb.org/draft/consistency.html">eventual consistency</a>
+<a href="https://msdn.microsoft.com/en-us/library/dn568103.aspx">CQRS</a> route where when
+a new recipe is submitted, it gets batched into some sort of <a href="http://www-01.ibm.com/software/data/infosphere/hadoop/mapreduce/">MapReduce</a> batch process where we precompute
+the answer to every possible query the user might issue into a caching layer.
+Queries are instantaneous, and we just recompute the caches every now and then
+when we have new recipes to integrate in.</p>
+
+<p>Almost nobody thinks “I’ll just brute force it.”</p>
+
+<p>Here’s a JavaScript program that creates a database of with 10 ingredients, 10
+recipes, 2 ingredients per recipe, and assumes a typical user query will say they
+have 5 ingredients available to them.</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">j</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">numIngredients</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">numRecipes</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">numIngredientsPerRecipe</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">numIngredientsInQuery</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">containsAll</span><span class="p">(</span><span class="nx">needles</span><span class="p">,</span> <span class="nx">haystack</span><span class="p">){</span> 
+  <span class="kd">var</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">len</span><span class="p">;</span>
+  <span class="k">for</span><span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">,</span> <span class="nx">len</span> <span class="o">=</span> <span class="nx">needles</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">len</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="k">if</span><span class="p">(</span><span class="nx">haystack</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">needles</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Set up a fake DB of recipes</span>
+<span class="kd">var</span> <span class="nx">ingredients</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">numIngredients</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">ingredients</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Here are the ingredients:&#39;</span><span class="p">,</span> <span class="nx">ingredients</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">recipes</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">numRecipes</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">neededIngredients</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="nx">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="o">&lt;</span> <span class="nx">numIngredientsPerRecipe</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">neededIngredients</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="nx">numRecipes</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="nx">recipes</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">recipeId</span><span class="o">:</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">needed</span><span class="o">:</span> <span class="nx">neededIngredients</span><span class="p">});</span>
+<span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Here are the recipes:&#39;</span><span class="p">,</span> <span class="nx">recipes</span><span class="p">);</span>
+
+<span class="c1">// Set up a fake query</span>
+<span class="kd">var</span> <span class="nx">ingredientsAvailable</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">numIngredientsInQuery</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">ingredientsAvailable</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="nx">numRecipes</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Here&#39;s a query:&quot;</span><span class="p">,</span> <span class="nx">ingredientsAvailable</span><span class="p">);</span>
+
+<span class="c1">//Time how long brute force takes</span>
+<span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">numRecipes</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">candidateRecipe</span> <span class="o">=</span> <span class="nx">recipes</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">containsAll</span><span class="p">(</span><span class="nx">candidateRecipe</span><span class="p">.</span><span class="nx">needed</span><span class="p">,</span> <span class="nx">ingredientsAvailable</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">candidateRecipe</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">end</span> <span class="o">=</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Found &#39;</span> <span class="o">+</span> <span class="nx">result</span><span class="p">.</span><span class="nx">length</span> <span class="o">+</span> <span class="s1">&#39; recipes in &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">end</span> <span class="o">-</span> <span class="nx">start</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; milliseconds.&#39;</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span></code></pre></div>
+
+<p>You can run it in your browser’s debug console, or save it to a local file and
+run it in Node.js. Either way, it typically finishes in 0 milliseconds.</p>
+
+<p>I’ve chosen these small numbers so you can run it and inspect the output and
+convince yourself it does the right thing and is bug free.</p>
+
+<p>Once you’re satisfied the program is free from bugs, change <code>numIngredients</code> to
+1000000, <code>numRecipes</code> to 1000000, <code>numIngredientsPerRecipe</code> to 50, and
+<code>numIngredientsInQuery</code> to 100 as per the original “ideal case” projections. I
+don’t recommend running this in the browser (Chromium and Firefox both don’t
+appreciate creating a couple of arrays with a million entries), but it should
+run fine in Node.js, where it completes it reports the brute force algorithm
+takes 125 milliseconds.</p>
+
+<h1 id="okay-so-what">Okay, So What?</h1>
+
+<p>So the brute force solution is pretty face. The smarter solutions are probably
+faster. And faster is better, right?</p>
+
+<p>Well, maybe… It depends on the cost-benefit analysis.</p>
+
+<p>The brute force solution is dead simple. The code snippet I pasted above is 53
+lines long, but the majority of those lines are setting up an environment to
+test the solution in. The solution itself is only 17 lines long, but 10 of those
+lines implement the <code>containsAll</code> function and could be eliminated if you’re
+already using a library like <a href="https://lodash.com/docs#every">lodash.js</a>:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="lineno"> 1</span> <span class="kd">function</span> <span class="nx">containsAll</span><span class="p">(</span><span class="nx">needles</span><span class="p">,</span> <span class="nx">haystack</span><span class="p">){</span> 
+<span class="lineno"> 2</span>   <span class="kd">var</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">len</span><span class="p">;</span>
+<span class="lineno"> 3</span>   <span class="k">for</span><span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">,</span> <span class="nx">len</span> <span class="o">=</span> <span class="nx">needles</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">len</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+<span class="lineno"> 4</span>       <span class="k">if</span><span class="p">(</span><span class="nx">haystack</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">needles</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno"> 5</span>           <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+<span class="lineno"> 6</span>       <span class="p">}</span>
+<span class="lineno"> 7</span>   <span class="p">}</span>
+<span class="lineno"> 8</span>   <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+<span class="lineno"> 9</span> <span class="p">}</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span> <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="lineno">12</span> <span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">numRecipes</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">13</span>     <span class="kd">var</span> <span class="nx">candidateRecipe</span> <span class="o">=</span> <span class="nx">recipes</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+<span class="lineno">14</span>     <span class="k">if</span> <span class="p">(</span><span class="nx">containsAll</span><span class="p">(</span><span class="nx">candidateRecipe</span><span class="p">.</span><span class="nx">needed</span><span class="p">,</span> <span class="nx">ingredientsAvailable</span><span class="p">))</span> <span class="p">{</span>
+<span class="lineno">15</span>         <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">candidateRecipe</span><span class="p">);</span>
+<span class="lineno">16</span>     <span class="p">}</span>
+<span class="lineno">17</span> <span class="p">}</span></code></pre></div>
+
+<p>In fact, if we were really code-golfing and had “reasonable” libraries available
+to us, we could probably write a one liner, and it wouldn’t even suffer in
+terms of readability:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">recipes</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">recipe</span> <span class="o">=&gt;</span> <span class="nx">ingredientsAvailable</span><span class="p">.</span><span class="nx">containsAll</span><span class="p">(</span><span class="nx">recipe</span><span class="p">.</span><span class="nx">needed</span><span class="p">))</span></code></pre></div>
+
+<p>How many lines of code would it take to implement an Akka actor based solution?
+A MapReduce cluster? Actually, never mind <em>lines</em>, how many <em>files</em> would it take
+to implement such a system? After it’s all done, how confident are you that it’s
+free of bugs? And if there were a bug, how difficult would it be to track down
+the bug and fix it? Did everyone on your team understand the Hasse solution? If
+you break up into groups and work on different parts of the problem, what are the
+odds that when you assemble all your modules together, everything will work?</p>
+
+<p>How long would it take you to implement the “more sophisticated” solutions? How
+long would it have taken you to write the brute force solution? 120 seconds?
+An hour or two? Do you think you could implement the decision tree solution in a
+day, or is it looking more like a week or two? Are you assuming you working solo
+on the problem, or are you gonna split the work with another developer or two?
+What are your combined salaries? How much more did it cost to implement the smarter
+solution? Assuming the more sophisticated solution was twice as fast, was the
+added cost worth bringing the query time down from 125ms to 60ms? Hell, assuming
+the more sophisticated solution was infinitely fast, was the price worth removing
+125ms from the user’s wait time? Would the user even notice a 125ms speed up in
+the app, or is the latency from their cell phone negotiating packets with their
+wireless carrier more likely to be the bottleneck there?</p>
+
+<p>If you’re a startup, you don’t even have a million recipes in your database yet.
+Those were just projections for an ideal case. You’d only have like 1000
+recipes, and maybe 10 users a day if you’re lucky. Do you want to pay 3
+developers for 2 weeks to launch this site, and <em>then</em> find out whether or not
+it’s a successful venture? Or you do want to pay 1 developer for an hour’s worth
+of work and then launch and find out whether there’s any demand for this app?
+(BTW, feel free to use 1 liner your recipe start up. I’m releasing it to the
+public domain.)</p>
+
+<p>I think this is a huge case of <a href="https://en.wikipedia.org/wiki/You_aren't_gonna_need_it">YAGNI</a>
+and <a href="http://c2.com/cgi/wiki?PrematureOptimization">premature optimization</a>.</p>
+
+<p>All that said, let me admit that I spent a day or two thinking about this
+problem, and the majority of that time was spent trying to work out the Hasse
+solution.</p>
+
+<p>It was only when I worked out that the running time for my Hasse-based
+datastructure was on the order of <script type="math/tex">O(N^2)</script> that I decide to write the above
+JavaScript code just to find out how slow the brute force solution was, and
+whether it’d be within tolerable levels. Imagine my surprise when it turned
+out that the brute force solution offered near instantaneous performance levels.</p>
+
+<p>I don’t personally know any people who self-identify as software engineers (in
+my sense of the term; maybe they’ll utter the syllables “software engineer” while
+giving a description of themselves, but when asked to elaborate, it won’t be
+split along the same axis as I have), so I don’t know how a typical software
+engineer would have answered this question.</p>
+
+<p>That said, I think the culture associated with (my definition of) computer
+scientists would push us to immediately start thinking about fancy data
+structures. This cultural baggage does one step worse than have us immediately
+dismiss the “brute force solution”, instead it typically doesn’t even occur to
+us to consider it for dismissal.</p>
+
+<p>At work the other day, an intern got bogged down in a piece of software, and I
+tried to push him towards “Just get something working that solves the core
+problem. If we need to, we can always come back and improve it later.” Seems
+like I need to learn the same lesson.</p>
+
+		<footer>
+			Originally published on Jul 4, 2015
+		</footer>
+	</article>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<div id="disqus_thread"></div>
+	<script type="text/javascript">
+		/* * * CONFIGURATION VARIABLES * * */
+		var disqus_shortname = 'nebupookins';
+		/* * * DON'T EDIT BELOW THIS LINE * * */
+		(function() {
+				var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+				(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+</div>
+
+		</div>
+		<footer id="site-footer">
+			<div>Copyright &copy; 2015 Nebu Pookins</div>
+			<div>
+				Contact me: 
+				<a href="mailto:nebupookins@gmail.com">
+					<i class="fa fa-envelope"></i> nebupookins@gmail.com
+				</a>
+				
+					<a href="https://github.com/NebuPookins">
+						<i class="fa fa-github-alt"></i> NebuPookins@GitHub
+					</a>
+				
+				
+					<a href="https://twitter.com/NebuPookins">
+						<i class="fa fa-twitter"></i>
+						NebuPookins@Twitter
+					</a>
+				
+			</div>
+			<div class="bg-attribution">Background texture "Black Orchid" made by <a href="https://www.hybridixstudio.com/">Hybridixstudio</a> CC BY-SA 3.0</div>
+		</footer>
+	</body>
+</html>

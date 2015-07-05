@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Nebu&#39;s FP Notes</title>
+    <description>Exploration of FP topics.
+</description>
+    <link>http://nebufp.github.io/</link>
+    <atom:link href="http://nebufp.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sun, 05 Jul 2015 00:54:27 -0700</pubDate>
+    <lastBuildDate>Sun, 05 Jul 2015 00:54:27 -0700</lastBuildDate>
+    <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>Software Engineering Challenge: Recipe Database</title>
+        <description>&lt;p&gt;There exists the term “Software Engineer” and “Computer Scientist”. There exists
+almost no consensus on what these terms mean and what the distinction between
+the two of them is. I’m going to offer my personal definition. I’m not saying
+it’s &lt;em&gt;the&lt;/em&gt; one true definition, and I don’t even think that it’s the most widely
+used definition. I have no idea which definition is most widely used, but I am
+very confident that that most widely used definition is also a minority; i.e.
+for all definitions D, the size of the population that uses D is (much) less
+than 50% of the population of all people who use those terms.&lt;/p&gt;
+
+&lt;p&gt;So here’s my definition: A computer scientist is more likely to be interested in
+the theory, whereas a computer engineer is more likely to be interested in the
+practical implementations. A computer scientist would be able to come up with a
+proof showing that a particular algorithm is the optimal way to solve a given
+problem, when run on an idealized abstraction of computation. A computer
+engineer would then be able to take that algorithm and implement it on actual
+(not idealized) computers with finite memories, and may need to deviate from
+the supposedly “proven optimal” design in order to increase performance due to
+issues like cache misses or finite word sizes (dealing with integers smaller
+than 64 bits is trivial. As soon as you cross that threshold, you have a whole
+other story).&lt;/p&gt;
+
+&lt;p&gt;For what it’s worth, I self-identify more as a computer scientist than as a
+software engineer (though my official job title these days is “software
+development engineer”).&lt;/p&gt;
+
+&lt;p&gt;With that in mind, here’s a little challenge for you (regardless of which one
+you self identify as). I was prompted to write this challenge from a
+StackOverflow post (which I won’t link to until the end of the post ‘cause I
+don’t want you to be tempted to cheat and look at the answer), but I’ve seen
+variations of this problem many times over the years.&lt;/p&gt;
+
+&lt;p&gt;Imagine we’re a new start up and we want to build a recipe database, where the
+user can enter in what ingredients they have available to them, and we return
+the set of all recipes that can be followed using only those ingredients.&lt;/p&gt;
+
+&lt;p&gt;For the purposes of this challenge, a &lt;code&gt;Recipe&lt;/code&gt; is merely a &lt;code&gt;Set&amp;lt;Ingredient&amp;gt;&lt;/code&gt;
+i.e. we don’t care how long it takes to prepare, what the steps are, and so
+on; all we care about is whether or not we have the ingredients necessary to
+follow the recipe. The database is some sort of collection of &lt;code&gt;Recipe&lt;/code&gt;s (it
+might be a list, a hashset, a map, or whatever; that’s part of what you need to
+figure out for your design). And when the user issues a query to you, they will
+do so by providing a &lt;code&gt;Set&amp;lt;ingredients&amp;gt;&lt;/code&gt; (It’s a set because ordering doesn’t
+matter).&lt;/p&gt;
+
+&lt;p&gt;Also note that for simplicity, we don’t care how much of an ingredient is
+necessary. For example, if a recipe needs milk, and the user says they have
+milk, then we should include that recipe (assuming the user also has all the
+other ingredients necessary for that recipe). We don’t attempt to have the user
+specify how much milk they have and compare that against how much milk the
+recipe say it needs.&lt;/p&gt;
+
+&lt;p&gt;Finally, to give you an idea of any scaling issues we may someday face,  we want
+loads of about 100’000 distinct possible ingredients and about 1’000’000
+distinct recipes (although of course, right now we only have about 1000 or so
+recipes, we’re adding more every day). We expect the typical recipe to require
+somewhere between 5  and 50 ingredients, and we expect the user to on average
+submit queries with about 100 ingredients (don’t worry, they don’t have to type
+them all in; we’re going to make an app that takes care of keeping track of what
+the user has available, the user just has to press a single button and the app
+populates the query). And ideally, we’re hoping to one day get to 1’000’000
+queries issued per day.&lt;/p&gt;
+
+&lt;p&gt;Let’s look at a concrete toy example. In this example, there exists only 3
+ingredients: bread, egg and milk. Here are all the recipes that exist in the DB:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Glass of milk. Required ingredients: milk.&lt;/li&gt;
+  &lt;li&gt;Fried egg. Required ingredients: egg.&lt;/li&gt;
+  &lt;li&gt;Omelet. Required ingredients: egg, milk.&lt;/li&gt;
+  &lt;li&gt;Toast. Required ingredients: bread.&lt;/li&gt;
+  &lt;li&gt;French Toast. Required ingredients: bread, egg, milk.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And here’s the test cases:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If a user submits the query &lt;code&gt;{milk}&lt;/code&gt;, we should return &lt;code&gt;{Glass of milk}&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;If the user submitthe query &lt;code&gt;{egg, milk}&lt;/code&gt;, we should return
+&lt;code&gt;{Glass of milk, Fried Egg, Omelet}&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;If a user submits the query &lt;code&gt;{bread, milk}&lt;/code&gt;, we should return
+&lt;code&gt;{Glass of milk, Toast}&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Go ahead and try to come up with a design now, and then come back to this blog
+post once you feel you’ve got a clean, simple design that you could give to a
+development team to implement.&lt;/p&gt;
+
+&lt;figure&gt;
+	&lt;img src=&quot;/vendor/wikipe-tan/spoiler-alert.png&quot; alt=&quot;Spoiler Alert! Care before scrolling further!&quot; /&gt;
+	&lt;figcaption&gt;
+		&lt;cite&gt;
+			Original Wikipe-tan image by &lt;a href=&quot;https://en.wikipedia.org/wiki/User:Kasuga&quot;&gt;Kasuga&lt;/a&gt;;
+			&lt;a href=&quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;&gt;CC BY-SA 3.0&lt;/a&gt;
+		&lt;/cite&gt;
+	&lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;Done? Great.&lt;/p&gt;
+
+&lt;p&gt;If you’re like most professional software developers, you probably started
+thinking about data structures and algorithms, and possibly about their running
+time and memory requirements.&lt;/p&gt;
+
+&lt;p&gt;Perhaps you tried to construct some sort of 20-questions style decision tree,
+along with an algorithm to rebalance the trees as new recipes/ingredients are
+added, and some sort of heuristic for determining the optimal order in which
+to ask those questions to reduce the space of possible recipe-sets as quickly
+as possible. E.g. Does the query include bread? If not we can eliminate Toast
+and French Toast, but now we need to ask a question to determine whether or not
+to keep Glass of milk, Fried egg and Omelet.&lt;/p&gt;
+
+&lt;p&gt;Or perhaps you tried to set up a key-value-Map-like datastructure where the keys
+are internally organized into a &lt;a href=&quot;https://en.wikipedia.org/wiki/Hasse_diagram&quot;&gt;Hasse Diagram&lt;/a&gt;
+so that when a user submitted their list of available ingredients, you’d fetch
+the recipes that exactly match the user’s available ingredients, and then travel
+down the “subset edges” in the Hasse diagram to also include recipes that don’t
+necessarily require every single ingredient the user owns. E.g. The user has egg
+and milk? Excellent, then they can definitely make Omelet. But now let’s look up
+all possible subsets of their available ingredients to see if there are other
+things they might be able to milk.&lt;/p&gt;
+
+&lt;p&gt;Maybe you thought of using &lt;a href=&quot;http://akka.io/&quot;&gt;a distributed network of actors&lt;/a&gt;,
+each actor perhaps responsible for some cluster of ingredients that commonly
+appear together, and when a request comes in, it gets passed around with a
+result list appended to.&lt;/p&gt;
+
+&lt;p&gt;Or maybe you went with an &lt;a href=&quot;http://guide.couchdb.org/draft/consistency.html&quot;&gt;eventual consistency&lt;/a&gt;
+&lt;a href=&quot;https://msdn.microsoft.com/en-us/library/dn568103.aspx&quot;&gt;CQRS&lt;/a&gt; route where when
+a new recipe is submitted, it gets batched into some sort of &lt;a href=&quot;http://www-01.ibm.com/software/data/infosphere/hadoop/mapreduce/&quot;&gt;MapReduce&lt;/a&gt; batch process where we precompute
+the answer to every possible query the user might issue into a caching layer.
+Queries are instantaneous, and we just recompute the caches every now and then
+when we have new recipes to integrate in.&lt;/p&gt;
+
+&lt;p&gt;Almost nobody thinks “I’ll just brute force it.”&lt;/p&gt;
+
+&lt;p&gt;Here’s a JavaScript program that creates a database of with 10 ingredients, 10
+recipes, 2 ingredients per recipe, and assumes a typical user query will say they
+have 5 ingredients available to them.&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numIngredients&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numRecipes&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numIngredientsPerRecipe&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numIngredientsInQuery&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;containsAll&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;needles&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;haystack&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt; 
+  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;len&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;needles&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;haystack&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;needles&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Set up a fake DB of recipes&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ingredients&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numIngredients&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;ingredients&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;Here are the ingredients:&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ingredients&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;recipes&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numRecipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;neededIngredients&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numIngredientsPerRecipe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;neededIngredients&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;floor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numRecipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;recipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;recipeId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;needed&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;neededIngredients&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;Here are the recipes:&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;recipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Set up a fake query&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ingredientsAvailable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numIngredientsInQuery&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;ingredientsAvailable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;floor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numRecipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Here&amp;#39;s a query:&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ingredientsAvailable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;//Time how long brute force takes&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;start&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numRecipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;candidateRecipe&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;recipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;containsAll&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;candidateRecipe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;needed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ingredientsAvailable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;candidateRecipe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;end&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;Found &amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39; recipes in &amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;end&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39; milliseconds.&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You can run it in your browser’s debug console, or save it to a local file and
+run it in Node.js. Either way, it typically finishes in 0 milliseconds.&lt;/p&gt;
+
+&lt;p&gt;I’ve chosen these small numbers so you can run it and inspect the output and
+convince yourself it does the right thing and is bug free.&lt;/p&gt;
+
+&lt;p&gt;Once you’re satisfied the program is free from bugs, change &lt;code&gt;numIngredients&lt;/code&gt; to
+1000000, &lt;code&gt;numRecipes&lt;/code&gt; to 1000000, &lt;code&gt;numIngredientsPerRecipe&lt;/code&gt; to 50, and
+&lt;code&gt;numIngredientsInQuery&lt;/code&gt; to 100 as per the original “ideal case” projections. I
+don’t recommend running this in the browser (Chromium and Firefox both don’t
+appreciate creating a couple of arrays with a million entries), but it should
+run fine in Node.js, where it completes it reports the brute force algorithm
+takes 125 milliseconds.&lt;/p&gt;
+
+&lt;h1 id=&quot;okay-so-what&quot;&gt;Okay, So What?&lt;/h1&gt;
+
+&lt;p&gt;So the brute force solution is pretty face. The smarter solutions are probably
+faster. And faster is better, right?&lt;/p&gt;
+
+&lt;p&gt;Well, maybe… It depends on the cost-benefit analysis.&lt;/p&gt;
+
+&lt;p&gt;The brute force solution is dead simple. The code snippet I pasted above is 53
+lines long, but the majority of those lines are setting up an environment to
+test the solution in. The solution itself is only 17 lines long, but 10 of those
+lines implement the &lt;code&gt;containsAll&lt;/code&gt; function and could be eliminated if you’re
+already using a library like &lt;a href=&quot;https://lodash.com/docs#every&quot;&gt;lodash.js&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;lineno&quot;&gt; 1&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;containsAll&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;needles&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;haystack&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt; 
+&lt;span class=&quot;lineno&quot;&gt; 2&lt;/span&gt;   &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 3&lt;/span&gt;   &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;len&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;needles&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 4&lt;/span&gt;       &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;haystack&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;needles&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 5&lt;/span&gt;           &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 6&lt;/span&gt;       &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 7&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 8&lt;/span&gt;   &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 9&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;10&lt;/span&gt; 
+&lt;span class=&quot;lineno&quot;&gt;11&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;12&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;numRecipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;13&lt;/span&gt;     &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;candidateRecipe&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;recipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;14&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;containsAll&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;candidateRecipe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;needed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ingredientsAvailable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;15&lt;/span&gt;         &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;push&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;candidateRecipe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;16&lt;/span&gt;     &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;17&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;In fact, if we were really code-golfing and had “reasonable” libraries available
+to us, we could probably write a one liner, and it wouldn’t even suffer in
+terms of readability:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;nx&quot;&gt;recipes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;recipe&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ingredientsAvailable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;containsAll&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;recipe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;needed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;How many lines of code would it take to implement an Akka actor based solution?
+A MapReduce cluster? Actually, never mind &lt;em&gt;lines&lt;/em&gt;, how many &lt;em&gt;files&lt;/em&gt; would it take
+to implement such a system? After it’s all done, how confident are you that it’s
+free of bugs? And if there were a bug, how difficult would it be to track down
+the bug and fix it? Did everyone on your team understand the Hasse solution? If
+you break up into groups and work on different parts of the problem, what are the
+odds that when you assemble all your modules together, everything will work?&lt;/p&gt;
+
+&lt;p&gt;How long would it take you to implement the “more sophisticated” solutions? How
+long would it have taken you to write the brute force solution? 120 seconds?
+An hour or two? Do you think you could implement the decision tree solution in a
+day, or is it looking more like a week or two? Are you assuming you working solo
+on the problem, or are you gonna split the work with another developer or two?
+What are your combined salaries? How much more did it cost to implement the smarter
+solution? Assuming the more sophisticated solution was twice as fast, was the
+added cost worth bringing the query time down from 125ms to 60ms? Hell, assuming
+the more sophisticated solution was infinitely fast, was the price worth removing
+125ms from the user’s wait time? Would the user even notice a 125ms speed up in
+the app, or is the latency from their cell phone negotiating packets with their
+wireless carrier more likely to be the bottleneck there?&lt;/p&gt;
+
+&lt;p&gt;If you’re a startup, you don’t even have a million recipes in your database yet.
+Those were just projections for an ideal case. You’d only have like 1000
+recipes, and maybe 10 users a day if you’re lucky. Do you want to pay 3
+developers for 2 weeks to launch this site, and &lt;em&gt;then&lt;/em&gt; find out whether or not
+it’s a successful venture? Or you do want to pay 1 developer for an hour’s worth
+of work and then launch and find out whether there’s any demand for this app?
+(BTW, feel free to use 1 liner your recipe start up. I’m releasing it to the
+public domain.)&lt;/p&gt;
+
+&lt;p&gt;I think this is a huge case of &lt;a href=&quot;https://en.wikipedia.org/wiki/You_aren&#39;t_gonna_need_it&quot;&gt;YAGNI&lt;/a&gt;
+and &lt;a href=&quot;http://c2.com/cgi/wiki?PrematureOptimization&quot;&gt;premature optimization&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;All that said, let me admit that I spent a day or two thinking about this
+problem, and the majority of that time was spent trying to work out the Hasse
+solution.&lt;/p&gt;
+
+&lt;p&gt;It was only when I worked out that the running time for my Hasse-based
+datastructure was on the order of &lt;script type=&quot;math/tex&quot;&gt;O(N^2)&lt;/script&gt; that I decide to write the above
+JavaScript code just to find out how slow the brute force solution was, and
+whether it’d be within tolerable levels. Imagine my surprise when it turned
+out that the brute force solution offered near instantaneous performance levels.&lt;/p&gt;
+
+&lt;p&gt;I don’t personally know any people who self-identify as software engineers (in
+my sense of the term; maybe they’ll utter the syllables “software engineer” while
+giving a description of themselves, but when asked to elaborate, it won’t be
+split along the same axis as I have), so I don’t know how a typical software
+engineer would have answered this question.&lt;/p&gt;
+
+&lt;p&gt;That said, I think the culture associated with (my definition of) computer
+scientists would push us to immediately start thinking about fancy data
+structures. This cultural baggage does one step worse than have us immediately
+dismiss the “brute force solution”, instead it typically doesn’t even occur to
+us to consider it for dismissal.&lt;/p&gt;
+
+&lt;p&gt;At work the other day, an intern got bogged down in a piece of software, and I
+tried to push him towards “Just get something working that solves the core
+problem. If we need to, we can always come back and improve it later.” Seems
+like I need to learn the same lesson.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 04 Jul 2015 20:21:12 -0000</pubDate>
+        <link>http://nebufp.github.io/2015/07/04/software-engineering-challenge-recipe-database.html</link>
+        <guid isPermaLink="true">http://nebufp.github.io/2015/07/04/software-engineering-challenge-recipe-database.html</guid>
+        
+        <category>programming</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>

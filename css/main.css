@@ -1,0 +1,88 @@
+body {
+  font-family: "freight-text-pro", Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 22px;
+  line-height: 1.5;
+  color: #fee;
+  background-color: #000;
+  background: url("/vendor/blackorchid/blackorchid.png"); }
+
+a {
+  color: #f30;
+  text-decoration: none; }
+  a:hover {
+    text-decoration: underline; }
+
+#site-header {
+  border-bottom: solid 1px white; }
+  #site-header nav {
+    float: right; }
+
+.post header, .post .tags, .post p, .post footer, .post h1, .post h2, .post h3, .post h4, .post h5, .post h6, .post ul, .post .dialog {
+  max-width: 550px;
+  margin-left: auto;
+  margin-right: auto; }
+.post .tags {
+  font-size: 14.66667px; }
+.post img, .post svg {
+  display: block;
+  margin-left: auto;
+  margin-right: auto; }
+.post figcaption {
+  text-align: center;
+  font-size: 14.66667px; }
+.post footer {
+  font-size: 14.66667px; }
+.post .dialog .line .speaker {
+  font-weight: bold;
+  vertical-align: top; }
+.post .dialog .line p {
+  margin-top: 0;
+  margin-bottom: 0; }
+.post pre {
+  background: #222;
+  padding: 12px;
+  font-size: 13.2px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto; }
+  .post pre code {
+    background: #222;
+    padding: 0px; }
+    .post pre code .c1 {
+      color: #ffa252; }
+    .post pre code .k {
+      color: #fff252; }
+    .post pre code .kc {
+      color: #bcff52; }
+    .post pre code .kd {
+      color: #6cff52; }
+    .post pre code .mi {
+      color: #52ff87; }
+    .post pre code .n {
+      color: #52ffd7; }
+    .post pre code .na {
+      color: #52d7ff; }
+    .post pre code .nb {
+      color: #5287ff; }
+    .post pre code .nx {
+      color: #d8d1ff; }
+    .post pre code .o {
+      font-weight: bold;
+      color: #bc52ff; }
+    .post pre code .p {
+      color: #ff52f2; }
+    .post pre code .s1 {
+      color: #ff52a2; }
+    .post pre code .s2 {
+      color: #ff5252; }
+
+#site-footer {
+  border-top: solid 1px white;
+  padding-top: 10px;
+  font-size: 14.66667px; }
+
+code {
+  background: #444;
+  padding-left: 6px;
+  padding-right: 6px;
+  border-radius: 6px; }
