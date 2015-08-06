@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Pure Functions and Total functions</title>
+		<meta name="description" content="If you ask a programmer “do you use functions?” he’ll probably give you a funnylook. “Of course I use functions!” he’ll reply. “I use a function to tell mewh...">
+		<link rel="stylesheet" href="/css/main.css">
+		<link rel="canonical" href="http://nebupookins.github.io//2015/08/05/pure-functions-and-total-functions.html">
+		<link rel="alternate" type="application/rss+xml" title="Nebu's FP Notes" href="http://nebupookins.github.io//feed.xml" />
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	</head>
+	<body>
+		<header id="site-header">
+			<a class="site-title" href="/">Nebu's FP Notes</a>
+			<nav class="site-nav">
+				<div class="trigger">
+					
+						
+							<a class="page-link" href="/about/">About</a>
+						
+					
+						
+					
+						
+					
+						
+					
+				</div>
+			</nav>
+		</header>
+		<div class="main-content">
+			<div class="post">
+	<header>
+		<h1>Pure Functions and Total functions</h1>
+	</header>
+	
+		<div class="tags">Tags: functional programming.</div>
+	
+	<article>
+		<p>If you ask a programmer “do you use functions?” he’ll probably give you a funny
+look. “Of course I use functions!” he’ll reply. “I use a function to tell me
+what time it is; I use a function to save data to a database; I use a function
+to tell me the position of the mouse cursor; etc. I use functions all the time!”</p>
+
+<p>If a mathematician happened to be within earshot during this conversation,
+she’ll probably give <em>him</em> a funny look. “None of those things are functions!”
+she’ll point out. “A function is a mapping from a set of inputs to a set of
+outputs. For example, <script type="math/tex">f(x) = x^2 + 2x</script>.”</p>
+
+<h1 id="pure-functions">Pure Functions</h1>
+
+<p>Because I’m a fan of <a href="https://en.wikipedia.org/wiki/Linguistic_description">descriptivism</a>,
+I’m not interested in trying to argue that one of them is “right” and the other
+person is “wrong”. Instead, I’ll point out that because of this ambiguity, we
+humans have come up with the term “pure function” (and “impure function”) to
+disambiguate which function we mean. A “pure” function is a function in the
+mathematician’s sense: a mapping from a set of inputs to a set of outputs.</p>
+
+<p>The output of a pure function is determined completely by its inputs: If you
+pass the value 3 to a pure function and it returns 15, then by virtue of the
+fact that that function is pure, you are guaranteed that any time you invoke the
+function with 3 again in the future, it will always return 15.</p>
+
+<p>This is in contrast to a function whose output may depend on the current time.
+Or a function which reads from a global variable as part of how it determines
+its output. Passing in the same inputs might yield a different output for two
+different invocations.</p>
+
+<h2 id="side-effects">Side Effects</h2>
+
+<p>A pure function by definition does not have any “side effects”. So not only are
+we guaranteed that a pure function will always return the same output given the
+same input, but we’re also guaranteed that the function will “do nothing”
+<em>except</em> return its output.</p>
+
+<p>This is in contrast to a function which writes something to disk, or which sets
+a global variable, or throws an exception, or anything else beyond returning a
+value that is in some way observable to the caller.</p>
+
+<p>It is always safe to replace a given invocation of a pure function with the
+result of that invocation. For example, given the code snippet <code>x = f(1) + f(1)</code>,
+if you know that <code>f</code> is a pure function, then it is safe to refactor this code
+to <code>x = 2 * f(1)</code>. On the other hand, if <code>f</code> was impure, then this refactoring
+might have introduced a bug. For example, perhaps <code>f</code> incremented a counter, and
+the original implementation would increment the counter twice (since <code>f</code> was
+invoked twice), whereas the refactored implementation would only increment the
+counter once.</p>
+
+<p>(Incidentally, a bit of jargon for you: we refer to the concept “it is always
+safe to replace a given invocation of a pure function with the result of that
+invocation” as “Referential Transparency”).</p>
+
+<h2 id="pure-functions-are-easy-to-test">Pure Functions are Easy to Test</h2>
+
+<p>One nice property of pure functions is that they are much easier to test than
+impure functions. A pure function simply returns some result given an input and
+is guaranteed to do nothing else but return that result. Therefore, to test a
+pure function, you simply need to provide it an input, and then check that the
+returned result is what you expected it to be.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">assertThat</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">sin</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">pi</span> <span class="o">*</span> <span class="mf">0.0</span><span class="o">),</span> <span class="n">is</span><span class="o">(</span><span class="mi">0</span><span class="o">));</span>
+<span class="n">assertThat</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">sin</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">pi</span> <span class="o">*</span> <span class="mf">0.5</span><span class="o">),</span> <span class="n">is</span><span class="o">(</span><span class="mi">1</span><span class="o">));</span>
+<span class="n">assertThat</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">sin</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">pi</span> <span class="o">*</span> <span class="mf">1.0</span><span class="o">),</span> <span class="n">is</span><span class="o">(</span><span class="mi">0</span><span class="o">));</span>
+<span class="n">assertThat</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">sin</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">pi</span> <span class="o">*</span> <span class="mf">1.5</span><span class="o">),</span> <span class="n">is</span><span class="o">(-</span><span class="mi">1</span><span class="o">));</span>
+<span class="n">assertThat</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">sin</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">pi</span> <span class="o">*</span> <span class="mf">2.0</span><span class="o">),</span> <span class="n">is</span><span class="o">(</span><span class="mi">0</span><span class="o">));</span></code></pre></div>
+
+<p>If you were testing a function for which its output depended on something other
+than the parameters you pass to it, then you’d first have to know what those
+hidden dependencies were (which would possibly lead to your tests becoming
+coupled to the <em>implementation</em> of the function instead of its <em>contract</em>), and
+then you’d need to see if you can intercept and control those hidden
+dependencies somehow.</p>
+
+<p>If you were testing a function which produced a side effect, you often don’t
+want the side effect to actually happen during testing. For example, let’s say
+you have a function <code>deleteUserFromDB</code> that you wanted to test. You want to
+check that the function is indeed capable of deleting users, but you definitely
+don’t want your tests to connect to the real production database. What if there
+is a bug in the implementation and it deletes the wrong user? I mean, you’re
+testing this function because you’re not sure that it’s bug free, right?</p>
+
+<p>In practice, this usually means creating one or more mock objects, but this
+assumes that the function under test provides some sort of hook so that you can
+inject in your mocks. If the function is hardcoded to connected to a database,
+interjecting your mocks may be difficult or impossible, depending on what
+programming language you’re using and what facilities it provides.</p>
+
+<p>If you’re testing a function which does not necessarily return the same value
+given the same inputs, and you check that it’s output is correct for a given
+invocation, how can you be sure that it’ll be right on the next invocation?
+Maybe that’s too complicated to check, so you’ll just be satisfied if you can
+verify that you get the results you want on the <em>first</em> invocation of the
+function. But then how can you make sure your test is the first one to invoke
+the function? What if somebody adds a test to the test suite that runs before
+your test, and happens to invoke the function you want to test? Does your
+test runner even guarantee a deterministic run-order for your tests?</p>
+
+<h2 id="pure-functions-are-easy-to-parallelize">Pure Functions are Easy to Parallelize</h2>
+
+<p>Speaking of non-determinism, the behavior of a pure function is determined
+entirely by its inputs. So in particular, the behavior of a pure function does
+not depend on the time or timing at which it is executed, or what thread it is
+executed upon.</p>
+
+<p>This makes them extremely easy to parallelize; in fact, the compiler can
+automatically parallelize any sequence of pure functions without any guidance
+from the programmer, without the need to perform any locking or any other form
+of synchronization. Race conditions and other multithreading bugs are only
+possible in the presence of side effects, which pure functions are guaranteed
+to not have.</p>
+
+<h1 id="total-functions">Total Functions</h1>
+
+<p>A related term is “Total Function”. A function is “total” if it is defined for
+all of its possible inputs. As a counter example, consider the function <code>tail</code>
+that takes a list as its input and returns a new list which is equal to
+the original list, except with its first element removed. <code>tail</code> is not a
+total function (it is a “partial function”), because it is not defined for the
+empty list.</p>
+
+<p>Note that “total” and “pure” are orthogonal concepts: A function can be both,
+neither, or any combination in between. For example:</p>
+
+<ul>
+  <li><code>not(x: boolean): boolean</code>, which returns the negation of its input, is both
+pure and total.</li>
+  <li><code>f(x: int): int = { callCount++; return 100 / x; }</code> is neither pure nor total.
+It is not defined for the input <code>0</code>, and it performs a side effect.</li>
+  <li><code>f(x: int): int = { callCount++; return x; }</code> is total but not pure.</li>
+</ul>
+
+<p>Things get tricky when we want to see a non-total function that happens to also
+be pure…</p>
+
+<h2 id="pure-partial-functions">Pure partial functions</h2>
+
+<p>If a partial function expresses its non-totality via a mechanism such as
+throwing an exceptions, then the caller can usually observe the fact that an
+exception was thrown (e.g. via a <code>catch</code> statement). In such a case, we would
+say that the partial function is impure, because it triggered an observable
+side-effect.</p>
+
+<p>On the other hand, if a partial function expressed its non-totality by not
+returning (e.g. by going into an infinite loop), then the caller would never
+have the opportunity to observe any side effect (because control never returns
+to the caller). Hence the function is pure.</p>
+
+<p>Notice that if you’re working in a programming language which allows you to
+throw exceptions, but provides no facility to catch exceptions, then from the
+caller’s perspective, this is the same as the infinite-loop example: The caller
+has no opportunity to observe any side effect, and thus the non-total function
+is also pure.</p>
+
+<p>Another variant on this idea is if a programming language provides two types of
+throwables; for example, an “error” can be thrown and caught, but a “fatal” can
+only be thrown but never caught. In such a language, a partial function that
+threw “errors” (or a mix of “errors” and “fatals” depending on some business
+logic) would be impure, but a partial function that threw only “fatals” could
+be pure.</p>
+
+		<footer>
+			Originally published on Aug 5, 2015
+		</footer>
+	</article>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<div id="disqus_thread"></div>
+	<script type="text/javascript">
+		/* * * CONFIGURATION VARIABLES * * */
+		var disqus_shortname = 'nebupookins';
+		/* * * DON'T EDIT BELOW THIS LINE * * */
+		(function() {
+				var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+				(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+</div>
+
+		</div>
+		<footer id="site-footer">
+			<div>Copyright &copy; 2015 Nebu Pookins</div>
+			<div>
+				Contact me: 
+				<a href="mailto:nebupookins@gmail.com">
+					<i class="fa fa-envelope"></i> nebupookins@gmail.com
+				</a>
+				
+					<a href="https://github.com/NebuPookins">
+						<i class="fa fa-github-alt"></i> NebuPookins@GitHub
+					</a>
+				
+				
+					<a href="https://twitter.com/NebuPookins">
+						<i class="fa fa-twitter"></i>
+						NebuPookins@Twitter
+					</a>
+				
+			</div>
+			<div class="bg-attribution">Background texture "Black Orchid" made by <a href="https://www.hybridixstudio.com/">Hybridixstudio</a> CC BY-SA 3.0</div>
+		</footer>
+	</body>
+</html>
